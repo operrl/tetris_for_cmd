@@ -2,25 +2,25 @@
 #include <Windows.h>
 #include <vector>
 #include <string>
-using std::string, std::cout, std::vector;
 
 
-void ShowConsoleCursor() {
-	HANDLE out = GetStdHandle(bool showFlag);
+
+void ShowConsoleCursor(bool showFlag) {
+	HANDLE out = GetStdHandle(showFlag);
 
 	CONSOLE_CURSOR_INFO cursorInfo;
 
 	GetConsoleCursorInfo(out, &cursorInfo);
 	cursorInfo.bVisible = showFlag;
 	SetConsoleCursorInfo(out, &cursorInfo);
-		
+
 }
 
 
-void gotoxy(int x, int y) { //функция для перемещения курсора в центр карты
-	COORD pos = { static_cast<SHORT>(x), static_cast<SHORT>(y) }; //получение координат курсора 
+void gotoxy(int x, int y) { 
+	COORD pos = { static_cast<SHORT>(x), static_cast<SHORT>(y) }; 
 	HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE); //?
-	SetConsoleCursorPosition(output, pos); //устанавливает курсор на заданное значение 
+	SetConsoleCursorPosition(output, pos); 
 }
 bool isPlaying = true;
 
@@ -30,27 +30,47 @@ const int F_HEIGHT = 20;
 class Detail {
 	int pos_x = F_WIDTH / 2;
 	int pos_y = 0;
-	string sprite = 
+	std::string sprite =
 		"0000"
 		"0000"
 		"0000"
 		"0000";
 public:
-	Detail(const string& sprite_) {
-			sprite = sprite_;
+	Detail(const std::string& sprite_) {
+		sprite = sprite_;
 	}
 	void draw() {
 		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++)
+			for (int j = 0; j < 4; j++) {
+				gotoxy(pos_x + j, pos_y + i);
 				char sym = sprite[i * 4 + j];
-				if (sym == "$") {
-					cout << sym;
-					}
-		} 
+				if (sym == '$') {
+					std::cout << sym;
+				}
+			}
+		}
+	}
+	void rotate() {
+		std::string new_sprite(
+			"0000"
+			"0000"
+			"0000"
+			"0000");
+
+		int min_x = 100;
+		int min_y = 100;
+		for (int i = 0; i < sprite.size(); i++) {
+			if (sprite[i] == '$') {
+				double x = (i % 4);
+				double y = (i / 4);
+				min_x = (y * -1) < min_x ? (y * -1) : min_x;
+				min_y = x < min_y ? x : min_y;
+			}
+		}
 	}
 };
 
-vector < Detail > details = {
+std::vector < Detail > details = {
 	Detail(
 		"$$00"
 		"$$00"
@@ -73,9 +93,13 @@ vector < Detail > details = {
 		"$$$$")
 };
 
-int main(){
+int main() {
 	ShowConsoleCursor(false);
 	while (isPlaying) {
-
-	 }
+		Detail cur_det = details[0];
+		bool stand = false;
+		while (!stand) {
+			cur_det.draw();
+		}
+	}
 }
