@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include <vector>
 #include <string>
-
+#include <chrono>
 
 
 void ShowConsoleCursor(bool showFlag) {
@@ -39,16 +39,42 @@ public:
 	Detail(const std::string& sprite_) {
 		sprite = sprite_;
 	}
+
+	const std::string& get_sprite() const {
+		return sprite;
+	}
+	int x() const {
+		return pos_x;
+	}
+	int y() const{
+		return pos_y;
+	}
+
+
 	void draw() {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				gotoxy(pos_x + j, pos_y + i);
+				gotoxy(1 + pos_x + j,1 + pos_y + i);
 				char sym = sprite[i * 4 + j];
 				if (sym == '$') {
 					std::cout << sym;
 				}
 			}
 		}
+	}
+	void clear() {
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				gotoxy(1 + pos_x + j, 1 + pos_y + i);
+				char sym = sprite[i * 4 + j];
+				if (sym == '$') {
+					std::cout << ' ';
+				}
+			}
+		}
+	}
+	void move_down() {
+		pos_y += 1;
 	}
 	void rotate() {
 		std::string new_sprite(
@@ -67,39 +93,92 @@ public:
 				min_y = x < min_y ? x : min_y;
 			}
 		}
+		for (int i = 0; i < sprite.size(); i++) {
+			if (sprite[i] == '$') {
+				double x = (1 % 4);
+				double y = (i / 4);
+
+				int new_x = -y - min_x;
+				int new_y = x - min_y;
+				new_sprite[new_y * 4 + new_x] = sprite[i];
+			}
+		}
+		sprite = new_sprite;
 	}
 };
 
 std::vector < Detail > details = {
 	Detail(
-		"$$00"
-		"$$00"
 		"0000"
-		"0000"),
+		"0000"
+		"$$00"
+		"$$00"),
 	Detail(
 		"$000"
 		"$000"
 		"$000"
-		"$000"),
-	Detail(
-		"000$"
-		"000$"
-		"000$"
-		"$$$$"),
-	Detail(
 		"$000"
-		"$000"
-		"$000"
-		"$$$$")
+	)
+};
+class Map {
+	std::string map = std::string(F_HEIGHT * F_WIDTH, ' ');
+public:
+	void draw_frame() {
+		for (int h = 0; h < F_HEIGHT + 2; h++) {
+			for (int w = 0; w < F_WIDTH + 2; w++) {
+				gotoxy(w, h);
+				if (h == 0 || w == 0 || h == F_HEIGHT + 1 || w == F_WIDTH + 1) {
+					std::cout << 'x';
+				}
+			}
+		}
+	}
+	bool collision(const Detail& detail) {
+		const std::string sprite = detail.get_sprite();
+		const int det_x = detail.x();
+		const int det_y = detail.y();
+		//проверка колизии с нижней границей 
+		for (int i = 0; i < 4; i++) {
+			int bot_pos = 0;
+			for (int j = 0; j < 4; j++) {
+				if (sprite[j * 4 + i] == '$') {
+					bot_pos = det_y + j + 1;
+				}
+			}
+			if (bot_pos * F_WIDTH + i + det_x >= map.size() || map[bot_pos * F_WIDTH + i + det_x] != ' ') {
+				for (int k = 0; k < 4; k++) {
+					for (int j = 0; j < 4; j++){
+						if (sprite[j * 4 + k] == '$') {
+							map[(det_y + j) * F_WIDTH + k + det_x] = '$';
+						}
+					}
+				}
+				return true;
+			}
+		}
+		return false;
+	}
 };
 
 int main() {
 	ShowConsoleCursor(false);
+	Map map;
+	map.draw_frame();
+	std::chrono::time_point<std::chrono::system_clock> startTime = std::chrono::system_clock::now(); //обращение к пространству имен std, установка точки времени через системное время, название переменной старттайм? 
+	std::chrono::time_point<std::chrono::system_clock> endTime = std::chrono::system_clock::now(); // приравнивается это все к сисетмному времен
 	while (isPlaying) {
 		Detail cur_det = details[0];
 		bool stand = false;
 		while (!stand) {
-			cur_det.draw();
+			endTime = std::chrono::system_clock::now();
+			std::chrono::duration<double> diff = endTime - startTime;
+			stand = map.collision(cur_det);
+			if (diff.count() > 0.2 && !stand) {
+				cur_det.clear();
+				cur_det.move_down();
+				cur_det.draw();
+				startTime = std::chrono::system_clock::now();
+			}
 		}
 	}
 }
