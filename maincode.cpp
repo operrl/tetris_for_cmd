@@ -173,7 +173,7 @@ public:
 		}
 	}
 	bool collision(const Detail& detail) {
-		const std::string& sprite = detail.get_sprite(); // Используем ссылку, чтобы избежать копирования
+		const std::string sprite = detail.get_sprite(); // Используем ссылку, чтобы избежать копирования
 		const int det_x = detail.x();
 		const int det_y = detail.y();
 
@@ -185,11 +185,11 @@ public:
 					int new_y = det_y + j + 1; // Y-координата клетки на поле
 
 					// Проверка выхода за границы поля
-					if (new_x < 0 || new_x >= F_WIDTH || new_y >= F_HEIGHT) {
+					if (new_x < 1 || new_x >= F_WIDTH + 1 || new_y >= F_HEIGHT) {
 						return true; // Коллизия с границами поля
 					}
 					// Проверка коллизии с другими фигурами
-					if (new_y >= 0 && map[new_y * F_WIDTH + new_x] != ' ') {
+					if (map[new_y * F_WIDTH + i + new_x] != ' ') {
 						return true; // Коллизия с другой фигурой
 					}
 				}
@@ -206,16 +206,17 @@ public:
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				if (sprite[j * 4 + i] == '$') {
-					int new_x = det_x + i;
-					int new_y = det_y + j;
+					int new_x = det_x + i + 1; // С учетом смещения
+					int new_y = det_y + j + 1; // С учетом смещения
 
-					if (new_x >= 0 && new_x < F_WIDTH && new_y >= 0 && new_y < F_HEIGHT) {
-						map[new_y * F_WIDTH + new_x]  = '$';
+					if (new_x >= 1 && new_x < F_WIDTH + 1 && new_y >= 1 && new_y < F_HEIGHT + 1) {
+						map[(new_y - 1) * F_WIDTH + (new_x - 1)] = '$';
 					}
 				}
 			}
 		}
 	}
+
 };
 
 int main() {
