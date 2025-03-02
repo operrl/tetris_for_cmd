@@ -189,7 +189,7 @@ public:
 						return true; // Коллизия с границами поля
 					}
 					// Проверка коллизии с другими фигурами
-					if (map[new_y * F_WIDTH + i + new_x] != ' ') {
+					if (map[new_y * F_WIDTH + new_x - 1] != ' ') {
 						return true; // Коллизия с другой фигурой
 					}
 				}
