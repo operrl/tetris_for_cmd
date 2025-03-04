@@ -198,6 +198,31 @@ public:
 
 		return false; // Коллизии нет
 	}
+
+	void clear_lines(std::string& map) {
+		for (int y = F_HEIGHT - 1; y >= 0; y--) {
+			bool isFull = true;
+			for (int x = 0; x < F_WIDTH; x++) {
+				if (map[y * F_WIDTH + x] == ' ') {
+					isFull = false;
+					break;
+				}
+			}
+			if (isFull) {
+				std::cout << "line for clear: " << y << std::endl;
+				for (int yy = y; yy > 0; --yy) {
+					for (int x = 0; x < F_WIDTH; x++) {
+						map[yy * F_WIDTH + x] = map[(yy - 1) * F_WIDTH + x];
+					}
+				}
+				for (int x = 0; x < F_WIDTH; x++) {
+					map[x] = ' ';
+				}
+				y++;
+			}
+		}
+	}
+
 	void place_figure(const Detail& detail) {
 		const std::string& sprite = detail.get_sprite();
 		const int det_x = detail.x();
@@ -206,8 +231,8 @@ public:
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				if (sprite[j * 4 + i] == '$') {
-					int new_x = det_x + i + 1; // С учетом смещения
-					int new_y = det_y + j + 1; // С учетом смещения
+					int new_x = det_x + i + 1; 
+					int new_y = det_y + j + 1; 
 
 					if (new_x >= 1 && new_x < F_WIDTH + 1 && new_y >= 1 && new_y < F_HEIGHT + 1) {
 						map[(new_y - 1) * F_WIDTH + (new_x - 1)] = '$';
@@ -215,8 +240,9 @@ public:
 				}
 			}
 		}
+		//clear_lines(map);
 	}
-
+	
 };
 
 int main() {
@@ -226,7 +252,7 @@ int main() {
 	std::chrono::time_point<std::chrono::system_clock> startTime = std::chrono::system_clock::now(); //берется начальное время
 	std::chrono::time_point<std::chrono::system_clock> endTime = std::chrono::system_clock::now(); //берется конечное время
 	while (isPlaying) {
-		Detail cur_det = details[2];
+		Detail cur_det = details[0];
 		bool stand = false;
 		while (!stand) {
 			endTime = std::chrono::system_clock::now();
