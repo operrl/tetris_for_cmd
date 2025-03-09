@@ -5,6 +5,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <conio.h>
+#include <random>
 
 
 void ShowConsoleCursor(bool showFlag) {
@@ -28,6 +29,7 @@ bool isPlaying = true;
 
 const int F_WIDTH = 10;
 const int F_HEIGHT = 20;
+int score = 0;
 
 class Detail {
 	int pos_x = F_WIDTH / 2;
@@ -161,6 +163,7 @@ std::vector < Detail > details = {
 };
 class Map {
 	std::string map = std::string(F_HEIGHT * F_WIDTH, ' ');
+	int score = 0;
 public:
 	void draw_frame() {
 		for (int h = 0; h < F_HEIGHT + 2; h++) {
@@ -180,6 +183,12 @@ public:
 			}
 		}
 	}
+
+	void draw_score() {
+		gotoxy(F_WIDTH + 5, 2); // Позиция для отображения счета
+		std::cout << "Score: " << score;
+	}
+
 	bool collision(const Detail& detail) {
 		const std::string sprite = detail.get_sprite(); // Используем ссылку, чтобы избежать копирования
 		const int det_x = detail.x();
@@ -207,7 +216,8 @@ public:
 		return false; // Коллизии нет
 	}
 
-	void clear_lines(std::string& map) {
+	int clear_lines(std::string& map) {
+		int linesclear = 0; 
 		for (int y = F_HEIGHT - 1; y >= 0; y--) {
 			bool isFull = true;
 			for (int x = 0; x < F_WIDTH; x++) {
@@ -217,6 +227,7 @@ public:
 				}
 			}
 			if (isFull) {
+				linesclear++;
 				for (int yy = y; yy > 0; --yy) {
 					for (int x = 0; x < F_WIDTH; x++) {
 						map[yy * F_WIDTH + x] = map[(yy - 1) * F_WIDTH + x];
@@ -228,7 +239,25 @@ public:
 				y++;
 			}
 		}
+		if (linesclear > 0) {
+			switch (linesclear)
+			{
+			case 1:
+				score += 100;
+				break;
+			case 2:
+				score += 300;
+				break;
+			case 3:
+				score += 500;
+				break;
+			case 4:
+				score += 800;
+				break;
+			}
+		}
 		draw_frame();
+		return linesclear;
 	}
 
 	void place_figure(const Detail& detail) {
@@ -249,7 +278,6 @@ public:
 				}
 			}
 		}
-
 		clear_lines(map);
 	}
 	
@@ -258,11 +286,13 @@ public:
 int main() {
 	ShowConsoleCursor(false);
 	Map map;
+	map.draw_score();
 	map.draw_frame();
 	std::chrono::time_point<std::chrono::system_clock> startTime = std::chrono::system_clock::now(); //берется начальное время
 	std::chrono::time_point<std::chrono::system_clock> endTime = std::chrono::system_clock::now(); //берется конечное время
+	srand(static_cast<unsigned int>(time(0)));
 	while (isPlaying) {
-		Detail cur_det = details[0];
+		Detail cur_det = details[rand() % 7];
 		bool stand = false;
 		while (!stand) {
 			endTime = std::chrono::system_clock::now();
@@ -277,5 +307,6 @@ int main() {
 			}
 		}
 		map.place_figure(cur_det);
+		map.draw_score();
 	}
 }
