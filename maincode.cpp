@@ -169,6 +169,14 @@ public:
 				if (h == 0 || w == 0 || h == F_HEIGHT + 1 || w == F_WIDTH + 1) {
 					std::cout << 'x';
 				}
+				else {
+					// Отрисовываем содержимое поля
+					int map_y = h - 1;
+					int map_x = w - 1;
+					if (map_y >= 0 && map_y < F_HEIGHT && map_x >= 0 && map_x < F_WIDTH) {
+						std::cout << map[map_y * F_WIDTH + map_x];
+					}
+				}
 			}
 		}
 	}
@@ -178,11 +186,11 @@ public:
 		const int det_y = detail.y();
 
 		// Проверка коллизии для каждой клетки спрайта
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				if (sprite[j * 4 + i] == '$') {
-					int new_x = det_x + i + 1; // X-координата клетки на поле
-					int new_y = det_y + j + 1; // Y-координата клетки на поле
+		for (int x = 0; x < 4; x++) {
+			for (int y = 0; y < 4; y++) {
+				if (sprite[y * 4 + x] == '$') {
+					int new_x = det_x + x + 1; // X-координата клетки на поле
+					int new_y = det_y + y + 1; // Y-координата клетки на поле
 
 					// Проверка выхода за границы поля
 					if (new_x < 1 || new_x >= F_WIDTH + 1 || new_y >= F_HEIGHT) {
@@ -209,18 +217,18 @@ public:
 				}
 			}
 			if (isFull) {
-				std::cout << "line for clear: " << y << std::endl;
 				for (int yy = y; yy > 0; --yy) {
 					for (int x = 0; x < F_WIDTH; x++) {
 						map[yy * F_WIDTH + x] = map[(yy - 1) * F_WIDTH + x];
 					}
 				}
-				for (int x = 0; x < F_WIDTH; x++) {
-					map[x] = ' ';
+				for (int x = 0; x < F_WIDTH + 1; x++) {
+					map[((y - 1) * F_WIDTH + (x - 1))] = ' ';
 				}
 				y++;
 			}
 		}
+		draw_frame();
 	}
 
 	void place_figure(const Detail& detail) {
@@ -236,11 +244,13 @@ public:
 
 					if (new_x >= 1 && new_x < F_WIDTH + 1 && new_y >= 1 && new_y < F_HEIGHT + 1) {
 						map[(new_y - 1) * F_WIDTH + (new_x - 1)] = '$';
+						//std::cout << "x: " << new_x << "y: " << new_y << std::endl;
 					}
 				}
 			}
 		}
-		//clear_lines(map);
+
+		clear_lines(map);
 	}
 	
 };
