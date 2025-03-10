@@ -273,7 +273,6 @@ public:
 
 					if (new_x >= 1 && new_x < F_WIDTH + 1 && new_y >= 1 && new_y < F_HEIGHT + 1) {
 						map[(new_y - 1) * F_WIDTH + (new_x - 1)] = '$';
-						//std::cout << "x: " << new_x << "y: " << new_y << std::endl;
 					}
 				}
 			}
