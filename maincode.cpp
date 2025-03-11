@@ -188,6 +188,10 @@ public:
 		gotoxy(F_WIDTH + 5, 2); // Позиция для отображения счета
 		std::cout << "Score: " << score;
 	}
+	void h_control() {
+		gotoxy(0, 22);
+		std::cout << "left: A, Rotate: S Right: D" << std::endl;
+	}
 
 	bool collision(const Detail& detail) {
 		const std::string sprite = detail.get_sprite(); // Используем ссылку, чтобы избежать копирования
@@ -273,6 +277,7 @@ public:
 
 					if (new_x >= 1 && new_x < F_WIDTH + 1 && new_y >= 1 && new_y < F_HEIGHT + 1) {
 						map[(new_y - 1) * F_WIDTH + (new_x - 1)] = '$';
+						//std::cout << "x: " << new_x << "y: " << new_y << std::endl;
 					}
 				}
 			}
@@ -287,6 +292,7 @@ int main() {
 	Map map;
 	map.draw_score();
 	map.draw_frame();
+	map.h_control();
 	std::chrono::time_point<std::chrono::system_clock> startTime = std::chrono::system_clock::now(); //берется начальное время
 	std::chrono::time_point<std::chrono::system_clock> endTime = std::chrono::system_clock::now(); //берется конечное время
 	srand(static_cast<unsigned int>(time(0)));
